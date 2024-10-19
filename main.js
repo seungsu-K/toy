@@ -17,7 +17,7 @@ function renderBoard() {
       cell.classList.add('cell');
       cell.dataset.row = row;
       cell.dataset.col = col;
-      cell.addEventListener('click', clickCell);
+      cell.addEventListener('click', () => clickCell(row, col));
       board.appendChild(cell);
     }
   }
@@ -46,20 +46,40 @@ function setMines() {
 
 setMines();
 
-function clickCell() {
-  if (gameOver || this.classList.contains('is-opened')) return;
+function clickCell(row, col) {
+  const cell = document.querySelector(
+    `.cell[data-row="${row}"][data-col="${col}"]`
+  );
 
-  const cell = this;
+  if (gameOver || cell.classList.contains('is-opened')) return;
+
   cell.classList.add('is-opened');
-
-  const row = +cell.dataset.row;
-  const col = +cell.dataset.col;
 
   if (mines[row][col]) {
     cell.classList.add('mine');
     alert('Game Over');
     gameOver = true;
+
     return;
+  } else if (checkAroundCell(row, col) === 0) {
+    for (let r = -1; r <= 1; r++) {
+      for (let c = -1; c <= 1; c++) {
+        const checkRow = row + r;
+        const checkCol = col + c;
+        const aroundCell = document.querySelector(
+          `.cell[data-row="${checkRow}"][data-col="${checkCol}"]`
+        );
+        if (
+          checkRow >= 0 &&
+          checkRow < rows &&
+          checkCol >= 0 &&
+          checkCol < cols &&
+          !aroundCell.classList.contains('is-opened')
+        ) {
+          clickCell(checkRow, checkCol);
+        }
+      }
+    }
   } else {
     cell.classList.add(`num${checkAroundCell(row, col)}`);
   }
@@ -70,8 +90,8 @@ function checkAroundCell(row, col) {
 
   for (let r = -1; r <= 1; r++) {
     for (let c = -1; c <= 1; c++) {
-      let checkRow = row + r;
-      let checkCol = col + c;
+      const checkRow = row + r;
+      const checkCol = col + c;
       if (
         checkRow >= 0 &&
         checkRow < rows &&

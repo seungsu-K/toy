@@ -21,6 +21,8 @@ main {
   background-color: gray;
   text-align: center;
   cursor: pointer;
+  font-weight: 900;
+  font-size: 20px;
 }
 
 .is-opened {
@@ -37,4 +39,44 @@ main {
 
 .button_restart {
   margin: 20px 0;
+}
+
+.num1::before {
+  content: '1';
+  color: blue;
+}
+
+.num2::before {
+  content: '2';
+  color: green;
+}
+
+.num3::before {
+  content: '3';
+  color: red;
+}
+
+.num4::before {
+  content: '4';
+  color: darkblue;
+}
+
+.num5::before {
+  content: '5';
+  color: brown;
+}
+
+.num6::before {
+  content: '6';
+  color: mediumseagreen;
+}
+
+.num7::before {
+  content: '7';
+  color: black;
+}
+
+.num8::before {
+  content: '8';
+  color: darkgray;
 }
