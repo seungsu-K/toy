@@ -37,6 +37,10 @@ main {
   content: '💣';
 }
 
+.is-flagged::before {
+  content: '🚩';
+}
+
 .button_restart {
   margin: 20px 0;
 }

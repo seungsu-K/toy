@@ -18,6 +18,9 @@ function renderBoard() {
       cell.dataset.row = row;
       cell.dataset.col = col;
       cell.addEventListener('click', () => clickCell(row, col));
+      cell.addEventListener('contextmenu', (e) => {
+        setFlag(e, row, col);
+      });
       board.appendChild(cell);
     }
   }
@@ -104,6 +107,17 @@ function checkAroundCell(row, col) {
   }
 
   return minesAroundCell;
+}
+
+function setFlag(e, row, col) {
+  e.preventDefault();
+  const cell = document.querySelector(
+    `.cell[data-row="${row}"][data-col="${col}"]`
+  );
+
+  if (gameOver || cell.classList.contains('is-opened')) return;
+
+  cell.classList.toggle('is-flagged');
 }
 
 function resetMines() {
