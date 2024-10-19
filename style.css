@@ -22,3 +22,19 @@ main {
   text-align: center;
   cursor: pointer;
 }
+
+.is-opened {
+  background-color: lightgray;
+}
+
+.mine {
+  background-color: red;
+}
+
+.mine::before {
+  content: '💣';
+}
+
+.button_restart {
+  margin: 20px 0;
+}
