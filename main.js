@@ -1,6 +1,6 @@
 import '/style.css';
 
-const boardSize = 9;
+// const boardSize = 9;
 const rows = 9;
 const cols = 9;
 
@@ -49,15 +49,41 @@ setMines();
 function clickCell() {
   if (gameOver || this.classList.contains('is-opened')) return;
 
-  let cell = this;
+  const cell = this;
   cell.classList.add('is-opened');
 
-  if (mines[cell.dataset.row][cell.dataset.col]) {
+  const row = +cell.dataset.row;
+  const col = +cell.dataset.col;
+
+  if (mines[row][col]) {
     cell.classList.add('mine');
     alert('Game Over');
     gameOver = true;
     return;
+  } else {
+    cell.classList.add(`num${checkAroundCell(row, col)}`);
   }
+}
+
+function checkAroundCell(row, col) {
+  let minesAroundCell = 0;
+
+  for (let r = -1; r <= 1; r++) {
+    for (let c = -1; c <= 1; c++) {
+      let checkRow = row + r;
+      let checkCol = col + c;
+      if (
+        checkRow >= 0 &&
+        checkRow < rows &&
+        checkCol >= 0 &&
+        checkCol < cols &&
+        mines[checkRow][checkCol]
+      )
+        minesAroundCell++;
+    }
+  }
+
+  return minesAroundCell;
 }
 
 function resetMines() {
@@ -70,11 +96,10 @@ function resetMines() {
 
 function restartGame() {
   gameOver = false;
-  const cells = document.querySelectorAll('.is-opened');
-  cells.forEach((cell) => cell.classList.remove('is-opened'));
 
-  const mine = document.querySelector('.mine');
-  mine.classList.remove('mine');
+  const cells = document.querySelectorAll('.cell');
+
+  if (cells) cells.forEach((cell) => (cell.className = 'cell'));
 
   resetMines();
 }
