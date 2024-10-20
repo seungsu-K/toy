@@ -97,6 +97,11 @@ function clickCell(row, col) {
   } else {
     cell.classList.add(`num${minesAroundCell(row, col)}`);
   }
+
+  if (checkWin()) {
+    alert('Win');
+    gameOver = true;
+  }
 }
 
 function minesAroundCell(row, col) {
@@ -197,3 +202,8 @@ function restartGame() {
 const restartButton = document.querySelector('.button_restart');
 
 restartButton.addEventListener('click', restartGame);
+
+function checkWin() {
+  const cells = document.querySelectorAll('.is-opened');
+  return cells.length + minesCount === rows * cols;
+}
