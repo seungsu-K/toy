@@ -17,7 +17,13 @@ function renderBoard() {
       cell.classList.add('cell');
       cell.dataset.row = row;
       cell.dataset.col = col;
-      cell.addEventListener('click', () => clickCell(row, col));
+      cell.addEventListener('click', (e) => {
+        if (e.button === 0 && !cell.classList.contains('is-opened')) {
+          clickCell(row, col);
+        } else {
+          clickOpenedCell(row, col);
+        }
+      });
       cell.addEventListener('contextmenu', (e) => {
         setFlag(e, row, col);
       });
@@ -54,7 +60,12 @@ function clickCell(row, col) {
     `.cell[data-row="${row}"][data-col="${col}"]`
   );
 
-  if (gameOver || cell.classList.contains('is-opened')) return;
+  if (
+    gameOver ||
+    cell.classList.contains('is-opened') ||
+    cell.classList.contains('is-flagged')
+  )
+    return;
 
   cell.classList.add('is-opened');
 
@@ -64,7 +75,7 @@ function clickCell(row, col) {
     gameOver = true;
 
     return;
-  } else if (checkAroundCell(row, col) === 0) {
+  } else if (minesAroundCell(row, col) === 0) {
     for (let r = -1; r <= 1; r++) {
       for (let c = -1; c <= 1; c++) {
         const checkRow = row + r;
@@ -84,12 +95,12 @@ function clickCell(row, col) {
       }
     }
   } else {
-    cell.classList.add(`num${checkAroundCell(row, col)}`);
+    cell.classList.add(`num${minesAroundCell(row, col)}`);
   }
 }
 
-function checkAroundCell(row, col) {
-  let minesAroundCell = 0;
+function minesAroundCell(row, col) {
+  let count = 0;
 
   for (let r = -1; r <= 1; r++) {
     for (let c = -1; c <= 1; c++) {
@@ -102,11 +113,56 @@ function checkAroundCell(row, col) {
         checkCol < cols &&
         mines[checkRow][checkCol]
       )
-        minesAroundCell++;
+        count++;
     }
   }
 
-  return minesAroundCell;
+  return count;
+}
+
+function checkFlagsAndMines(row, col) {
+  let count = 0;
+
+  for (let r = -1; r <= 1; r++) {
+    for (let c = -1; c <= 1; c++) {
+      const checkRow = row + r;
+      const checkCol = col + c;
+      const aroundCell = document.querySelector(
+        `.cell[data-row="${checkRow}"][data-col="${checkCol}"]`
+      );
+      if (
+        checkRow >= 0 &&
+        checkRow < rows &&
+        checkCol >= 0 &&
+        checkCol < cols &&
+        mines[checkRow][checkCol] &&
+        aroundCell.classList.contains('is-flagged')
+      ) {
+        count++;
+      }
+    }
+  }
+  return count;
+}
+
+function clickOpenedCell(row, col) {
+  if (checkFlagsAndMines(row, col) === minesAroundCell(row, col)) {
+    for (let r = -1; r <= 1; r++) {
+      for (let c = -1; c <= 1; c++) {
+        const checkRow = row + r;
+        const checkCol = col + c;
+
+        if (
+          checkRow >= 0 &&
+          checkRow < rows &&
+          checkCol >= 0 &&
+          checkCol < cols
+        ) {
+          clickCell(checkRow, checkCol);
+        }
+      }
+    }
+  }
 }
 
 function setFlag(e, row, col) {
