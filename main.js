@@ -1,12 +1,17 @@
+import { getCellNode } from './src/getCellNode';
+import { createCells } from './src/createCells';
+import { setMines } from './src/setMines';
 import '/style.css';
+import { isValidCell } from './src/isValidCell';
 
-// const boardSize = 9;
+const boardSize = 9;
 const rows = 9;
 const cols = 9;
-
-const minesCount = 10;
+const mines = 10;
+let cells = createCells(rows, cols);
 
 const board = document.querySelector('#board');
+const restartButton = document.querySelector('.button_restart');
 
 let gameOver = false;
 
@@ -25,7 +30,7 @@ function renderBoard() {
         }
       });
       cell.addEventListener('contextmenu', (e) => {
-        setFlag(e, row, col);
+        putFlag(e, row, col);
       });
       board.appendChild(cell);
     }
@@ -34,73 +39,50 @@ function renderBoard() {
 
 renderBoard();
 
-let mines = new Array(rows)
-  .fill(null)
-  .map(() => new Array(cols).fill(null).map(() => false));
-
-function setMines() {
-  let setMines = 0;
-
-  while (setMines < minesCount) {
-    const row = Math.floor(Math.random() * rows);
-    const col = Math.floor(Math.random() * cols);
-    if (!mines[row][col]) {
-      mines[row][col] = true;
-      setMines++;
-    }
-  }
-
-  return mines;
-}
-
-setMines();
+setMines(rows, cols, cells, mines);
 
 function clickCell(row, col) {
-  const cell = document.querySelector(
-    `.cell[data-row="${row}"][data-col="${col}"]`
-  );
+  const cell = getCellNode(row, col);
 
-  if (
-    gameOver ||
-    cell.classList.contains('is-opened') ||
-    cell.classList.contains('is-flagged')
-  )
-    return;
+  if (gameOver || cells[row][col].opened || cells[row][col].flagged) return;
 
   cell.classList.add('is-opened');
+  cells[row][col].opened = true;
 
-  if (mines[row][col]) {
+  if (cells[row][col].mine) {
     cell.classList.add('mine');
     alert('Game Over');
     gameOver = true;
-
     return;
-  } else if (minesAroundCell(row, col) === 0) {
-    for (let r = -1; r <= 1; r++) {
-      for (let c = -1; c <= 1; c++) {
-        const checkRow = row + r;
-        const checkCol = col + c;
-        const aroundCell = document.querySelector(
-          `.cell[data-row="${checkRow}"][data-col="${checkCol}"]`
-        );
-        if (
-          checkRow >= 0 &&
-          checkRow < rows &&
-          checkCol >= 0 &&
-          checkCol < cols &&
-          !aroundCell.classList.contains('is-opened')
-        ) {
-          clickCell(checkRow, checkCol);
-        }
-      }
-    }
+  }
+
+  const minesAround = minesAroundCell(row, col);
+
+  if (minesAround === 0) {
+    openAroundCell(row, col);
   } else {
-    cell.classList.add(`num${minesAroundCell(row, col)}`);
+    cell.classList.add(`num${minesAround}`);
   }
 
   if (checkWin()) {
     alert('Win');
     gameOver = true;
+  }
+}
+
+function openAroundCell(row, col) {
+  for (let r = -1; r <= 1; r++) {
+    for (let c = -1; c <= 1; c++) {
+      const checkRow = row + r;
+      const checkCol = col + c;
+      const aroundCell = getCellNode(checkRow, checkCol);
+      if (
+        isValidCell(checkRow, checkCol, boardSize) &&
+        !aroundCell.classList.contains('is-opened')
+      ) {
+        clickCell(checkRow, checkCol);
+      }
+    }
   }
 }
 
@@ -112,11 +94,8 @@ function minesAroundCell(row, col) {
       const checkRow = row + r;
       const checkCol = col + c;
       if (
-        checkRow >= 0 &&
-        checkRow < rows &&
-        checkCol >= 0 &&
-        checkCol < cols &&
-        mines[checkRow][checkCol]
+        isValidCell(checkRow, checkCol, boardSize) &&
+        cells[checkRow][checkCol].mine
       )
         count++;
     }
@@ -132,15 +111,13 @@ function checkFlagsAndMines(row, col) {
     for (let c = -1; c <= 1; c++) {
       const checkRow = row + r;
       const checkCol = col + c;
-      const aroundCell = document.querySelector(
-        `.cell[data-row="${checkRow}"][data-col="${checkCol}"]`
-      );
+      const aroundCell = getCellNode(checkRow, checkCol);
       if (
         checkRow >= 0 &&
         checkRow < rows &&
         checkCol >= 0 &&
         checkCol < cols &&
-        mines[checkRow][checkCol] &&
+        cells[checkRow][checkCol].mine &&
         aroundCell.classList.contains('is-flagged')
       ) {
         count++;
@@ -170,40 +147,29 @@ function clickOpenedCell(row, col) {
   }
 }
 
-function setFlag(e, row, col) {
+function putFlag(e, row, col) {
   e.preventDefault();
-  const cell = document.querySelector(
-    `.cell[data-row="${row}"][data-col="${col}"]`
-  );
+  const cell = getCellNode(row, col);
 
   if (gameOver || cell.classList.contains('is-opened')) return;
 
   cell.classList.toggle('is-flagged');
-}
-
-function resetMines() {
-  mines = new Array(rows)
-    .fill(null)
-    .map(() => new Array(cols).fill(null).map(() => false));
-
-  setMines();
+  cells[row][col].flagged = true;
 }
 
 function restartGame() {
   gameOver = false;
 
-  const cells = document.querySelectorAll('.cell');
+  const cellsEl = document.querySelectorAll('.cell');
+  cellsEl.forEach((cell) => (cell.className = 'cell'));
 
-  if (cells) cells.forEach((cell) => (cell.className = 'cell'));
-
-  resetMines();
+  cells = createCells(rows, cols);
+  setMines(rows, cols, cells, mines);
 }
-
-const restartButton = document.querySelector('.button_restart');
-
-restartButton.addEventListener('click', restartGame);
 
 function checkWin() {
   const cells = document.querySelectorAll('.is-opened');
-  return cells.length + minesCount === rows * cols;
+  return cells.length + mines === rows * cols;
 }
+
+restartButton.addEventListener('click', restartGame);

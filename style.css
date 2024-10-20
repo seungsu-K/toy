@@ -13,9 +13,6 @@ main {
 }
 
 .cell {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   width: 24px;
   height: 24px;
   background-color: gray;
@@ -30,15 +27,18 @@ main {
 }
 
 .mine {
-  background-color: red;
+  background-color: gray;
+  background-image: url('/mine.svg');
+  background-size: 20px;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
-.mine::before {
-  content: '💣';
-}
-
-.is-flagged::before {
-  content: '🚩';
+.is-flagged {
+  background-image: url('/flag.svg');
+  background-size: 20px;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .button_restart {
