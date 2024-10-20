@@ -3,12 +3,13 @@ import { createCells } from './src/createCells';
 import { setMines } from './src/setMines';
 import '/style.css';
 import { isValidCell } from './src/isValidCell';
+import { putFlag } from './src/putFlag';
 
 const boardSize = 9;
-const rows = 9;
-const cols = 9;
+// const rows = 9;
+// const cols = 9;
 const mines = 10;
-let cells = createCells(rows, cols);
+let cells = createCells(boardSize, boardSize);
 
 const board = document.querySelector('#board');
 const restartButton = document.querySelector('.button_restart');
@@ -16,52 +17,63 @@ const restartButton = document.querySelector('.button_restart');
 let gameOver = false;
 
 function renderBoard() {
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
+  for (let row = 0; row < boardSize; row++) {
+    for (let col = 0; col < boardSize; col++) {
       const cell = document.createElement('div');
       cell.classList.add('cell');
       cell.dataset.row = row;
       cell.dataset.col = col;
-      cell.addEventListener('click', (e) => {
-        if (e.button === 0 && !cell.classList.contains('is-opened')) {
-          clickCell(row, col);
-        } else {
-          clickOpenedCell(row, col);
-        }
-      });
-      cell.addEventListener('contextmenu', (e) => {
-        putFlag(e, row, col);
-      });
+      cell.addEventListener('click', handleLeftClick);
+      cell.addEventListener('contextmenu', handleRightClick);
       board.appendChild(cell);
     }
   }
 }
 
-renderBoard();
+function handleLeftClick(e) {
+  const row = parseInt(e.target.dataset.row);
+  const col = parseInt(e.target.dataset.col);
+  const cell = cells[row][col];
 
-setMines(rows, cols, cells, mines);
+  if (!cell.opened) {
+    openCell(row, col);
+  } else {
+    clickOpenedCell(row, col);
+  }
+}
 
-function clickCell(row, col) {
-  const cell = getCellNode(row, col);
+function handleRightClick(e) {
+  e.preventDefault();
+  const row = parseInt(e.target.dataset.row);
+  const col = parseInt(e.target.dataset.col);
 
-  if (gameOver || cells[row][col].opened || cells[row][col].flagged) return;
+  if (gameOver) return;
 
-  cell.classList.add('is-opened');
-  cells[row][col].opened = true;
+  putFlag(row, col, cells);
+}
 
-  if (cells[row][col].mine) {
-    cell.classList.add('mine');
+function openCell(row, col) {
+  const cellEl = getCellNode(row, col);
+  const cell = cells[row][col];
+
+  if (gameOver || cell.opened || cell.flagged) return;
+
+  cellEl.classList.add('is-opened');
+  cell.opened = true;
+
+  if (cell.mine) {
+    cellEl.classList.add('mine');
     alert('Game Over');
     gameOver = true;
     return;
   }
 
-  const minesAround = minesAroundCell(row, col);
+  const minesAround = countMinesAround(row, col);
 
   if (minesAround === 0) {
     openAroundCell(row, col);
   } else {
-    cell.classList.add(`num${minesAround}`);
+    cellEl.classList.add(`num${minesAround}`);
   }
 
   if (checkWin()) {
@@ -75,24 +87,25 @@ function openAroundCell(row, col) {
     for (let c = -1; c <= 1; c++) {
       const checkRow = row + r;
       const checkCol = col + c;
-      const aroundCell = getCellNode(checkRow, checkCol);
+
       if (
         isValidCell(checkRow, checkCol, boardSize) &&
-        !aroundCell.classList.contains('is-opened')
+        !cells[checkRow][checkCol].opened
       ) {
-        clickCell(checkRow, checkCol);
+        openCell(checkRow, checkCol);
       }
     }
   }
 }
 
-function minesAroundCell(row, col) {
+function countMinesAround(row, col) {
   let count = 0;
 
   for (let r = -1; r <= 1; r++) {
     for (let c = -1; c <= 1; c++) {
       const checkRow = row + r;
       const checkCol = col + c;
+
       if (
         isValidCell(checkRow, checkCol, boardSize) &&
         cells[checkRow][checkCol].mine
@@ -104,21 +117,44 @@ function minesAroundCell(row, col) {
   return count;
 }
 
-function checkFlagsAndMines(row, col) {
+function clickOpenedCell(row, col) {
+  const minesAround = countMinesAround(row, col);
+  const flagAround = countFlagsAround(row, col);
+
+  if (minesAround === flagAround) {
+    for (let r = -1; r <= 1; r++) {
+      for (let c = -1; c <= 1; c++) {
+        const checkRow = row + r;
+        const checkCol = col + c;
+
+        if (isValidCell(checkRow, checkCol, boardSize)) {
+          if (!cells[checkRow][checkCol].opened) {
+            openCell(checkRow, checkCol);
+          }
+
+          if (
+            cells[checkRow][checkCol].flagged &&
+            !cells[checkRow][checkCol].mine
+          ) {
+            return;
+          }
+        }
+      }
+    }
+  }
+}
+
+function countFlagsAround(row, col) {
   let count = 0;
 
   for (let r = -1; r <= 1; r++) {
     for (let c = -1; c <= 1; c++) {
       const checkRow = row + r;
       const checkCol = col + c;
-      const aroundCell = getCellNode(checkRow, checkCol);
+
       if (
-        checkRow >= 0 &&
-        checkRow < rows &&
-        checkCol >= 0 &&
-        checkCol < cols &&
-        cells[checkRow][checkCol].mine &&
-        aroundCell.classList.contains('is-flagged')
+        isValidCell(checkRow, checkCol, boardSize) &&
+        cells[checkRow][checkCol].flagged
       ) {
         count++;
       }
@@ -127,49 +163,21 @@ function checkFlagsAndMines(row, col) {
   return count;
 }
 
-function clickOpenedCell(row, col) {
-  if (checkFlagsAndMines(row, col) === minesAroundCell(row, col)) {
-    for (let r = -1; r <= 1; r++) {
-      for (let c = -1; c <= 1; c++) {
-        const checkRow = row + r;
-        const checkCol = col + c;
-
-        if (
-          checkRow >= 0 &&
-          checkRow < rows &&
-          checkCol >= 0 &&
-          checkCol < cols
-        ) {
-          clickCell(checkRow, checkCol);
-        }
-      }
-    }
-  }
-}
-
-function putFlag(e, row, col) {
-  e.preventDefault();
-  const cell = getCellNode(row, col);
-
-  if (gameOver || cell.classList.contains('is-opened')) return;
-
-  cell.classList.toggle('is-flagged');
-  cells[row][col].flagged = true;
-}
-
 function restartGame() {
   gameOver = false;
 
   const cellsEl = document.querySelectorAll('.cell');
   cellsEl.forEach((cell) => (cell.className = 'cell'));
 
-  cells = createCells(rows, cols);
-  setMines(rows, cols, cells, mines);
+  cells = createCells(boardSize, boardSize);
+  setMines(boardSize, cells, mines);
 }
 
 function checkWin() {
   const cells = document.querySelectorAll('.is-opened');
-  return cells.length + mines === rows * cols;
+  return cells.length + mines === boardSize * boardSize;
 }
 
 restartButton.addEventListener('click', restartGame);
+renderBoard();
+setMines(boardSize, cells, mines);
