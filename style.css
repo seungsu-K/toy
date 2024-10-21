@@ -1,37 +1,94 @@
+@import '@/styles/index.css';
+
 main {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
   align-items: center;
+  gap: 1rem;
+  width: 25rem;
+  margin: 0 auto;
+}
+
+.header {
+  height: 2rem;
+  margin: 2rem 0;
+}
+
+.info {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-evenly;
+  text-align: center;
+  width: 100%;
+
+  .info_container {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 0.5rem;
+  }
+}
+
+#level {
+  padding: 2px 8px;
 }
 
 .board {
   display: grid;
   grid-template-columns: repeat(9, 24px);
   grid-template-rows: repeat(9, 24px);
-  gap: 2px;
+}
+
+.beginner {
+  display: grid;
+  grid-template-columns: repeat(9, 24px);
+  grid-template-rows: repeat(9, 24px);
+}
+
+.intermediate {
+  display: grid;
+  grid-template-columns: repeat(16, 24px);
+  grid-template-rows: repeat(16, 24px);
+}
+
+.expert {
+  display: grid;
+  grid-template-columns: repeat(20, 24px);
+  grid-template-rows: repeat(24, 24px);
 }
 
 .cell {
   width: 24px;
   height: 24px;
-  background-color: gray;
+  border: 1px solid var(--gray-300);
+  background-color: var(--gray-200);
   text-align: center;
-  cursor: pointer;
-  font-weight: 900;
+  font-weight: 700;
   font-size: 20px;
+
+  &:hover {
+    background-color: var(--gray-100);
+  }
 }
 
 .is-opened {
-  background-color: lightgray;
+  background-color: var(--gray-400);
+
+  &:hover {
+    background-color: var(--gray-400);
+  }
 }
 
 .mine {
-  background-color: gray;
+  background-color: #ea1111;
   background-image: url('/mine.svg');
   background-size: 20px;
   background-repeat: no-repeat;
   background-position: center;
+
+  &:hover {
+    background-color: #ea1111;
+  }
 }
 
 .is-flagged {
@@ -39,6 +96,10 @@ main {
   background-size: 20px;
   background-repeat: no-repeat;
   background-position: center;
+
+  &:hover {
+    background-color: var(--gray-200);
+  }
 }
 
 .button_restart {

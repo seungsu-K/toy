@@ -1,3 +1,3 @@
-export function isValidCell(row, col, boardSize) {
-  return row >= 0 && row < boardSize && col >= 0 && col < boardSize;
+export function isValidCell(row, col, rows, cols) {
+  return row >= 0 && row < rows && col >= 0 && col < cols;
 }

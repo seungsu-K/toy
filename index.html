@@ -9,8 +9,26 @@
   </head>
   <body>
     <main>
-      <h2>Minesweeper</h2>
-      <div class="board" id="board"></div>
+      <h1 class="header">Minesweeper</h1>
+      <div class="info">
+        <div class="info_container">
+          <label for="level" class="info_container_header">레벨</label>
+          <select name="level" id="level" class="info_container_content">
+            <option value="초급" selected>초급</option>
+            <option value="중급">중급</option>
+            <option value="고급">고급</option>
+          </select>
+        </div>
+        <div class="info_container">
+          <p class="info_container_header">mines</p>
+          <p class="info_container_content">10</p>
+        </div>
+        <div class="info_container">
+          <p class="info_container_header">time</p>
+          <p class="info_container_content">1초</p>
+        </div>
+      </div>
+      <div id="board"></div>
       <button type="button" class="button_restart">재시작</button>
     </main>
   </body>
