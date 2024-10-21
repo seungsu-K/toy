@@ -12,8 +12,8 @@
       <h1 class="header">Minesweeper</h1>
       <div class="info">
         <div class="info_container">
-          <label for="level" class="info_container_header">레벨</label>
-          <select name="level" id="level" class="info_container_content">
+          <label for="level">레벨</label>
+          <select name="level" id="level">
             <option value="초급" selected>초급</option>
             <option value="중급">중급</option>
             <option value="고급">고급</option>
@@ -25,11 +25,17 @@
         </div>
         <div class="info_container">
           <p>time</p>
-          <p>1초</p>
+          <div class="info_container_sub">
+            <p id="time"></p>
+            <p>초</p>
+          </div>
         </div>
       </div>
+      <button type="button" class="button_restart">
+        <img src="/restart.svg" alt="재시작" width="24" height="24" />
+      </button>
       <div id="board"></div>
-      <button type="button" class="button_restart">재시작</button>
+      <div id="result" class="hidden result"></div>
     </main>
   </body>
 </html>

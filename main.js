@@ -24,11 +24,15 @@ let level = '초급';
 let cells = [];
 let gameOver = false;
 let leftMines = setting[level].mines;
+let timer = 0;
+let timeInterval;
 
 const board = document.querySelector('#board');
 const levelSelect = document.querySelector('#level');
 const infoMines = document.querySelector('#mines');
 const restartButton = document.querySelector('.button_restart');
+const infoTimer = document.querySelector('#time');
+const result = document.querySelector('#result');
 
 function initGame(level) {
   const { boardSize, mines } = setting[level];
@@ -36,16 +40,13 @@ function initGame(level) {
 
   gameOver = false;
   cells = createCells(rows, cols);
+
+  resetTimer();
+  resetResult();
   setBoard(board, level);
   setMines(rows, cols, cells, mines);
   renderLeftMines(mines);
   renderBoard(rows, cols);
-}
-
-function updateLeftMines(add) {
-  leftMines += add;
-
-  return leftMines;
 }
 
 function renderLeftMines(mines) {
@@ -84,8 +85,9 @@ function handleLeftClick(e) {
   }
 
   if (checkWin(rows, cols, mines)) {
-    alert('Win');
     gameOver = true;
+    renderResult('You Win 🎉');
+    clearInterval(timeInterval);
   }
 }
 
@@ -105,13 +107,18 @@ function openCell(row, col, rows, cols) {
 
   if (gameOver || cell.opened || cell.flagged) return;
 
+  if (timer === 0) {
+    startTimer();
+  }
+
   cellEl.classList.add('is-opened');
   cell.opened = true;
 
   if (cell.mine) {
     cellEl.classList.add('mine');
-    alert('Game Over');
     gameOver = true;
+    renderResult('Game Over 💣');
+    clearInterval(timeInterval);
     return;
   }
 
@@ -204,6 +211,36 @@ function putFlag(row, col, cells) {
   }
 
   renderLeftMines(leftMines);
+}
+
+function updateLeftMines(add) {
+  leftMines += add;
+
+  return leftMines;
+}
+
+function startTimer() {
+  timer = true;
+  timeInterval = setInterval(() => {
+    timer++;
+    infoTimer.textContent = `${timer}`;
+  }, 1000);
+}
+
+function resetTimer() {
+  clearInterval(timeInterval);
+  timer = 0;
+  infoTimer.textContent = '0';
+}
+
+function renderResult(message) {
+  result.textContent = message;
+  result.classList.remove('hidden');
+}
+
+function resetResult() {
+  result.textContent = '';
+  result.classList.add('hidden');
 }
 
 function restartGame(level) {
