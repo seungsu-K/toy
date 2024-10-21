@@ -21,7 +21,7 @@ main {
   justify-content: space-evenly;
   text-align: center;
   width: 100%;
-  height: 50px;
+  height: 3rem;
 
   .info_container {
     display: flex;
@@ -39,7 +39,7 @@ main {
   }
 
   #time {
-    width: 30px;
+    width: 2rem;
   }
 
   #level {
@@ -67,11 +67,35 @@ main {
 }
 
 .button_restart {
+  position: relative;
   width: 2rem;
   height: 2rem;
   margin: auto 0;
   border: 1px solid #757575;
   border-radius: 0.5rem;
+}
+
+.button_tooltip {
+  visibility: none;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  transform: translate(0, 120%);
+  z-index: 1;
+  width: 7rem;
+  padding: 4px;
+  color: white;
+  font-size: 0.75rem;
+  background-color: #192733;
+  opacity: 0;
+  border-radius: 0.5rem;
+
+  transition: all 0.5s 0.2s;
+}
+
+.button_restart:hover .button_tooltip {
+  visibility: visible;
+  opacity: 1;
 }
 
 .cell {
