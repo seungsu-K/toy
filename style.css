@@ -89,13 +89,12 @@ main {
   background-color: #192733;
   opacity: 0;
   border-radius: 0.5rem;
-
-  transition: all 0.5s 0.2s;
 }
 
 .button_restart:hover .button_tooltip {
   visibility: visible;
   opacity: 1;
+  transition: all 0.5s 1s;
 }
 
 .cell {
@@ -119,6 +118,7 @@ main {
 
 .is-opened {
   background-color: var(--gray-400);
+  transition: all 0.2s;
 
   &:hover {
     background-color: var(--gray-100);
@@ -146,6 +146,10 @@ main {
   &:hover {
     background-color: var(--gray-200);
   }
+}
+
+.num0:hover {
+  background-color: var(--gray-400);
 }
 
 .num1::before {

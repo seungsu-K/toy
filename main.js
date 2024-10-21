@@ -24,7 +24,8 @@ let level = '초급';
 let cells = [];
 let gameOver = false;
 let leftMines = setting[level].mines;
-let timer = 0;
+let time = 0;
+let timer = false;
 let timeInterval;
 
 const board = document.querySelector('#board');
@@ -107,8 +108,9 @@ function openCell(row, col, rows, cols) {
 
   if (gameOver || cell.opened || cell.flagged) return;
 
-  if (timer === 0) {
+  if (time === 0 && !timer) {
     startTimer();
+    timer = true;
   }
 
   cellEl.classList.add('is-opened');
@@ -119,12 +121,15 @@ function openCell(row, col, rows, cols) {
     gameOver = true;
     renderResult('Game Over 💣');
     clearInterval(timeInterval);
+    timer = false;
+
     return;
   }
 
   const minesAround = countMinesAround(row, col, rows, cols);
 
   if (minesAround === 0) {
+    cellEl.classList.add(`num${minesAround}`);
     openAroundCell(row, col, rows, cols);
   } else {
     cellEl.classList.add(`num${minesAround}`);
@@ -198,9 +203,12 @@ function putFlag(row, col, cells) {
   const cellEl = getCellNode(row, col);
   const cell = cells[row][col];
 
-  if (cell.opened || leftMines <= 0) return;
+  if (cell.opened) return;
 
   if (!cell.flagged) {
+    if (leftMines === 0) {
+      return;
+    }
     cellEl.classList.toggle('is-flagged');
     cell.flagged = !cell.flagged;
     updateLeftMines(-1);
@@ -220,16 +228,16 @@ function updateLeftMines(add) {
 }
 
 function startTimer() {
-  timer = true;
   timeInterval = setInterval(() => {
-    timer++;
-    infoTimer.textContent = `${timer}`;
+    time++;
+    infoTimer.textContent = `${time}`;
   }, 1000);
 }
 
 function resetTimer() {
   clearInterval(timeInterval);
-  timer = 0;
+  time = 0;
+  timer = false;
   infoTimer.textContent = '0';
 }
 
@@ -243,19 +251,12 @@ function resetResult() {
   result.classList.add('hidden');
 }
 
-function restartGame(level) {
-  const cellsEl = document.querySelectorAll('.cell');
-  cellsEl.forEach((cell) => (cell.className = 'cell'));
-
-  initGame(level);
-}
-
 function checkWin(rows, cols, mines) {
   const cells = document.querySelectorAll('.is-opened');
   return cells.length + mines === rows * cols;
 }
 
-restartButton.addEventListener('click', () => restartGame(level));
+restartButton.addEventListener('click', () => initGame(level));
 levelSelect.addEventListener('change', (e) => {
   level = e.target.value;
   leftMines = setting[level].mines;

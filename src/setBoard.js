@@ -13,6 +13,6 @@ export function setBoard(board, level) {
       break;
   }
 
-  board.classList.remove('begninner', 'intermediate', 'expert');
+  board.classList.remove('beginner', 'intermediate', 'expert');
   board.classList.add(level);
 }
