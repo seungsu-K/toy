@@ -25,7 +25,9 @@ main {
   .info_container {
     display: flex;
     flex-flow: column nowrap;
+    justify-content: space-between;
     gap: 0.5rem;
+    width: 4rem;
   }
 }
 
@@ -33,28 +35,22 @@ main {
   padding: 2px 8px;
 }
 
-.board {
-  display: grid;
-  grid-template-columns: repeat(9, 24px);
-  grid-template-rows: repeat(9, 24px);
-}
-
 .beginner {
   display: grid;
-  grid-template-columns: repeat(9, 24px);
   grid-template-rows: repeat(9, 24px);
+  grid-template-columns: repeat(9, 24px);
 }
 
 .intermediate {
   display: grid;
-  grid-template-columns: repeat(16, 24px);
   grid-template-rows: repeat(16, 24px);
+  grid-template-columns: repeat(16, 24px);
 }
 
 .expert {
   display: grid;
-  grid-template-columns: repeat(20, 24px);
   grid-template-rows: repeat(24, 24px);
+  grid-template-columns: repeat(20, 24px);
 }
 
 .cell {
@@ -75,7 +71,7 @@ main {
   background-color: var(--gray-400);
 
   &:hover {
-    background-color: var(--gray-400);
+    background-color: var(--gray-100);
   }
 }
 
@@ -103,7 +99,6 @@ main {
 }
 
 .button_restart {
-  margin: 20px 0;
 }
 
 .num1::before {

@@ -4,11 +4,7 @@ import { getCellNode } from './src/getCellNode';
 import { createCells } from './src/createCells';
 import { setMines } from './src/setMines';
 import { isValidCell } from './src/isValidCell';
-import { putFlag } from './src/putFlag';
 import { setBoard } from './src/setBoard';
-
-const levelSelect = document.querySelector('#level');
-let level = levelSelect.value;
 
 const setting = {
   초급: {
@@ -20,15 +16,18 @@ const setting = {
     mines: 40,
   },
   고급: {
-    boardSize: { rows: 20, cols: 24 },
+    boardSize: { rows: 24, cols: 20 },
     mines: 99,
   },
 };
-
+let level = '초급';
 let cells = [];
 let gameOver = false;
+let leftMines = setting[level].mines;
 
 const board = document.querySelector('#board');
+const levelSelect = document.querySelector('#level');
+const infoMines = document.querySelector('#mines');
 const restartButton = document.querySelector('.button_restart');
 
 function initGame(level) {
@@ -37,15 +36,24 @@ function initGame(level) {
 
   gameOver = false;
   cells = createCells(rows, cols);
-
+  setBoard(board, level);
   setMines(rows, cols, cells, mines);
-  renderBoard(rows, cols, level);
+  renderLeftMines(mines);
+  renderBoard(rows, cols);
 }
 
-function renderBoard(rows, cols, level) {
-  board.innerHTML = '';
+function updateLeftMines(add) {
+  leftMines += add;
 
-  setBoard(board, level);
+  return leftMines;
+}
+
+function renderLeftMines(mines) {
+  infoMines.textContent = `${mines}`;
+}
+
+function renderBoard(rows, cols) {
+  board.innerHTML = '';
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
@@ -67,10 +75,17 @@ function handleLeftClick(e) {
   const col = parseInt(e.target.dataset.col);
   const cell = cells[row][col];
 
+  if (gameOver) return;
+
   if (!cell.opened) {
-    openCell(row, col, rows, cols, mines);
+    openCell(row, col, rows, cols);
   } else {
-    clickOpenedCell(row, col, rows, cols, mines);
+    clickOpenedCell(row, col, rows, cols);
+  }
+
+  if (checkWin(rows, cols, mines)) {
+    alert('Win');
+    gameOver = true;
   }
 }
 
@@ -81,10 +96,10 @@ function handleRightClick(e) {
 
   if (gameOver) return;
 
-  putFlag(row, col, cells);
+  putFlag(row, col, cells, leftMines);
 }
 
-function openCell(row, col, rows, cols, mines) {
+function openCell(row, col, rows, cols) {
   const cellEl = getCellNode(row, col);
   const cell = cells[row][col];
 
@@ -103,18 +118,13 @@ function openCell(row, col, rows, cols, mines) {
   const minesAround = countMinesAround(row, col, rows, cols);
 
   if (minesAround === 0) {
-    openAroundCell(row, col, rows, cols, mines);
+    openAroundCell(row, col, rows, cols);
   } else {
     cellEl.classList.add(`num${minesAround}`);
   }
-
-  if (checkWin(rows, cols, mines)) {
-    alert('Win');
-    gameOver = true;
-  }
 }
 
-function openAroundCell(row, col, rows, cols, mines) {
+function openAroundCell(row, col, rows, cols) {
   for (let r = -1; r <= 1; r++) {
     for (let c = -1; c <= 1; c++) {
       const checkRow = row + r;
@@ -124,7 +134,7 @@ function openAroundCell(row, col, rows, cols, mines) {
         isValidCell(checkRow, checkCol, rows, cols) &&
         !cells[checkRow][checkCol].opened
       ) {
-        openCell(checkRow, checkCol, rows, cols, mines);
+        openCell(checkRow, checkCol, rows, cols);
       }
     }
   }
@@ -149,30 +159,12 @@ function countMinesAround(row, col, rows, cols) {
   return count;
 }
 
-function clickOpenedCell(row, col, rows, cols, mines) {
+function clickOpenedCell(row, col, rows, cols) {
   const minesAround = countMinesAround(row, col, rows, cols);
   const flagAround = countFlagsAround(row, col, rows, cols);
 
   if (minesAround === flagAround) {
-    for (let r = -1; r <= 1; r++) {
-      for (let c = -1; c <= 1; c++) {
-        const checkRow = row + r;
-        const checkCol = col + c;
-
-        if (isValidCell(checkRow, checkCol, rows, cols)) {
-          if (!cells[checkRow][checkCol].opened) {
-            openCell(checkRow, checkCol, rows, cols, mines);
-          }
-
-          if (
-            cells[checkRow][checkCol].flagged &&
-            !cells[checkRow][checkCol].mine
-          ) {
-            return;
-          }
-        }
-      }
-    }
+    openAroundCell(row, col, rows, cols);
   }
 }
 
@@ -195,6 +187,25 @@ function countFlagsAround(row, col, rows, cols) {
   return count;
 }
 
+function putFlag(row, col, cells) {
+  const cellEl = getCellNode(row, col);
+  const cell = cells[row][col];
+
+  if (cell.opened || leftMines <= 0) return;
+
+  if (!cell.flagged) {
+    cellEl.classList.toggle('is-flagged');
+    cell.flagged = !cell.flagged;
+    updateLeftMines(-1);
+  } else {
+    cellEl.classList.toggle('is-flagged');
+    cell.flagged = !cell.flagged;
+    updateLeftMines(1);
+  }
+
+  renderLeftMines(leftMines);
+}
+
 function restartGame(level) {
   const cellsEl = document.querySelectorAll('.cell');
   cellsEl.forEach((cell) => (cell.className = 'cell'));
@@ -208,9 +219,9 @@ function checkWin(rows, cols, mines) {
 }
 
 restartButton.addEventListener('click', () => restartGame(level));
-
 levelSelect.addEventListener('change', (e) => {
   level = e.target.value;
+  leftMines = setting[level].mines;
   initGame(level);
 });
 
