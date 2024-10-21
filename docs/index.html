@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/flag.svg" />
+    <title>Minesweeper</title>
+    <script type="module" crossorigin src="/assets/main-B8pQCInn.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/main-Bf39B4aa.css">
+  </head>
+  <body>
+    <main>
+      <h1 class="header">Minesweeper</h1>
+      <div class="info">
+        <div class="info_container">
+          <label for="level">레벨</label>
+          <select name="level" id="level">
+            <option value="초급" selected>초급</option>
+            <option value="중급">중급</option>
+            <option value="고급">고급</option>
+          </select>
+        </div>
+        <div class="info_container">
+          <p>mines</p>
+          <p id="mines"></p>
+        </div>
+        <div class="info_container">
+          <p>time</p>
+          <div class="info_container_sub">
+            <p id="time"></p>
+            <p>초</p>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="button_restart">
+        <img src="/restart.svg" alt="재시작" width="24" height="24" />
+        <span class="button_tooltip">restart the game</span>
+      </button>
+      <div id="board"></div>
+      <div id="result" class="hidden result"></div>
+    </main>
+  </body>
+</html>
