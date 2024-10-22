@@ -40,13 +40,14 @@ function initGame(level) {
   const { rows, cols } = boardSize;
 
   gameOver = false;
+  leftMines = setting[level].mines;
   cells = createCells(rows, cols);
 
   resetTimer();
   resetResult();
   setBoard(board, level);
   setMines(rows, cols, cells, mines);
-  renderLeftMines(mines);
+  renderLeftMines(leftMines);
   renderBoard(rows, cols);
 }
 
@@ -211,20 +212,20 @@ function putFlag(row, col, cells) {
     }
     cellEl.classList.toggle('is-flagged');
     cell.flagged = !cell.flagged;
-    updateLeftMines(-1);
+    leftMines = updateLeftMines(-1, leftMines);
   } else {
     cellEl.classList.toggle('is-flagged');
     cell.flagged = !cell.flagged;
-    updateLeftMines(1);
+    leftMines = updateLeftMines(1, leftMines);
   }
 
   renderLeftMines(leftMines);
 }
 
-function updateLeftMines(add) {
-  leftMines += add;
+function updateLeftMines(add, mines) {
+  mines += add;
 
-  return leftMines;
+  return mines;
 }
 
 function startTimer() {

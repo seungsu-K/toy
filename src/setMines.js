@@ -10,5 +10,5 @@ export function setMines(rows, cols, cells, mines) {
     }
   }
 
-  return cells;
+  // return cells;
 }
