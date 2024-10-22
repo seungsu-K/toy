@@ -127,7 +127,7 @@ main {
 
 .mine {
   background-color: #ea1111;
-  background-image: url('./mine.svg');
+  background-image: url('/mine.svg');
   background-size: 20px;
   background-repeat: no-repeat;
   background-position: center;
@@ -138,7 +138,7 @@ main {
 }
 
 .is-flagged {
-  background-image: url('./flag.svg');
+  background-image: url('/flag.svg');
   background-size: 20px;
   background-repeat: no-repeat;
   background-position: center;
